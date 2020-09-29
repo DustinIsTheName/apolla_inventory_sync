@@ -11,12 +11,15 @@ class OrderController < ApplicationController
       for line_item in params["line_items"]
         if line_item["title"].include? "(Kit)"
           begin
-            counterpart_title = line_item["title"].gsub("(Kit)",'').strip
+            kit_product = ShopifyAPI::Product.find(line_item["product_id"])
+            kit_variant = ShopifyAPI::Variant.find(line_item["variant_id"])
+
+            counterpart_title = kit_product.title.gsub("(Kit)",'').strip
             main_product = ShopifyAPI::Product.find(:all, params: {title: counterpart_title}).select{|p| p.title == counterpart_title}&.first
 
             puts Colorize.magenta(main_product.title)
 
-            variant = main_product.variants.select{|v| v.title == line_item["variant_title"]}.first
+            variant = main_product.variants.select{|v| v.title == kit_variant.title}.first
             inventory_item_params = { inventory_item_ids: variant.inventory_item_id }
             inventory_levels = ShopifyAPI::InventoryLevel.find(:all, params: inventory_item_params)
 
@@ -57,12 +60,15 @@ class OrderController < ApplicationController
           line_item = refund_line_item["line_item"]
 
           begin
-            counterpart_title = line_item["title"].gsub("(Kit)",'').strip
+            kit_product = ShopifyAPI::Product.find(line_item["product_id"])
+            kit_variant = ShopifyAPI::Variant.find(line_item["variant_id"])
+
+            counterpart_title = kit_product.title.gsub("(Kit)",'').strip
             main_product = ShopifyAPI::Product.find(:all, params: {title: counterpart_title}).select{|p| p.title == counterpart_title}&.first
 
             puts Colorize.magenta(main_product.title)
 
-            variant = main_product.variants.select{|v| v.title == line_item["variant_title"]}.first
+            variant = main_product.variants.select{|v| v.title == kit_variant.title}.first
             inventory_item_params = { inventory_item_ids: variant.inventory_item_id }
             inventory_levels = ShopifyAPI::InventoryLevel.find(:all, params: inventory_item_params)
 
