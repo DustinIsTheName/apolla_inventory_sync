@@ -14,6 +14,8 @@ class OrderController < ApplicationController
             kit_product = ShopifyAPI::Product.find(line_item["product_id"])
             kit_variant = ShopifyAPI::Variant.find(line_item["variant_id"])
 
+            check_credit
+
             counterpart_title = kit_product.title.gsub("(Kit)",'').strip
             main_product = ShopifyAPI::Product.find(:all, params: {title: counterpart_title}).select{|p| p.title == counterpart_title}&.first
 
@@ -37,6 +39,8 @@ class OrderController < ApplicationController
         else
           puts Colorize.cyan("Not a kit item")
         end
+
+        check_credit
       end
 
       order = Order.new
@@ -96,6 +100,13 @@ class OrderController < ApplicationController
     end
 
     head :ok
+  end
+
+  def check_credit
+    if ShopifyAPI.credit_left < 5
+      puts Colorize.white("sleeping for 5...")
+      sleep 5
+    end
   end
 
 end
