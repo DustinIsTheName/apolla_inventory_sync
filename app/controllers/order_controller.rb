@@ -6,6 +6,7 @@ class OrderController < ApplicationController
     puts params
 
     order = Order.find_by_shopify_id(params["id"])
+    tag_order = false
 
     unless order
       for line_item in params["line_items"]
@@ -40,7 +41,21 @@ class OrderController < ApplicationController
           puts Colorize.cyan("Not a kit item")
         end
 
+        if line_item["title"].downcase.include? "gift"
+          tag_order = true
+        else
+          puts Colorize.cyan("Not a gift item")
+        end
+
         check_credit
+      end
+
+      if tag_order
+        shopify_order = ShopifyAPI::Order.find params["id"]
+        shopify_order.tags << ", GIFT"
+        if shopify_order.save
+          puts Colorize.green("added tag to order")
+        end
       end
 
       order = Order.new
