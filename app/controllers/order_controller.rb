@@ -43,6 +43,7 @@ class OrderController < ApplicationController
 
         if line_item["title"].downcase.include? "gift"
           tag_order = true
+          puts Colorize.green("Is a gift item")
         else
           puts Colorize.cyan("Not a gift item")
         end
