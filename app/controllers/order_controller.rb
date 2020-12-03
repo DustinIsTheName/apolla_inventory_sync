@@ -96,11 +96,13 @@ class OrderController < ApplicationController
 
             puts Colorize.magenta(variant.id)
 
-            if inventory_levels[0].adjust(line_item["quantity"].to_i)
+            inventory_level = inventory_levels.select{|l| l.location_id == 490635287}.first
+
+            if inventory_level.adjust(line_item["quantity"].to_i)
               puts Colorize.green("Restocked inventory by #{line_item["quantity"]}")
             else
               puts Colorize.red("error setting quantity")
-              puts inventory_levels[0]
+              puts inventory_level
             end
           rescue Exception => e
             puts Colorize.red(e)
